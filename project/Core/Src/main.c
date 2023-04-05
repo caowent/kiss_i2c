@@ -87,7 +87,7 @@ int main(void)
   MX_GPIO_Init();
   MX_TIM3_Init();
   /* USER CODE BEGIN 2 */
-
+  HAL_TIM_Base_Start_IT(&htim3);
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -95,8 +95,9 @@ int main(void)
   while (1)
   {
     /* USER CODE END WHILE */
-    __NOP();
+
     /* USER CODE BEGIN 3 */
+    __nop();
   }
   /* USER CODE END 3 */
 }
@@ -137,7 +138,10 @@ void SystemClock_Config(void)
 }
 
 /* USER CODE BEGIN 4 */
-
+void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
+{
+  HAL_GPIO_TogglePin(LED_GPIO_Port, LED_Pin);
+}
 /* USER CODE END 4 */
 
 /**
