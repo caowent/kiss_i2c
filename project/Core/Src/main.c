@@ -23,7 +23,7 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-
+#include "asp_ssd1306.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -88,6 +88,13 @@ int main(void)
   MX_TIM3_Init();
   /* USER CODE BEGIN 2 */
   HAL_TIM_Base_Start_IT(&htim3);
+  /* ssd1306 ≥ı ºªØ */
+  asp_ssd1306_init();
+  ssd1306_display_char(16, 0, 'N');
+  ssd1306_display_char(32, 0, 'S');
+  ssd1306_display_char(48, 0, 'W');
+  ssd1306_display_char(64, 0, 'E');
+  ssd1306_refresh_gram();
   /* USER CODE END 2 */
 
   /* Infinite loop */
