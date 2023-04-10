@@ -1,5 +1,7 @@
 {
     "files.associations": {
-        "tim.h": "c"
+        "tim.h": "c",
+        "common.h": "c",
+        "asp_ssd1306.h": "c"
     }
 }
