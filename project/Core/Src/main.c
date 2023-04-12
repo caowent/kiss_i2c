@@ -24,6 +24,7 @@
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 #include "asp_ssd1306.h"
+#include "asp_hmc5883l.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -87,10 +88,18 @@ int main(void)
   MX_GPIO_Init();
   MX_TIM3_Init();
   /* USER CODE BEGIN 2 */
-  HAL_TIM_Base_Start_IT(&htim3);
+
+  /* 器件延时 */
+  HAL_Delay(100);
+
   /* ssd1306 初始化 */
   asp_ssd1306_init();
-  ssd1306_display_string(32, 16, "东北");
+
+  /* hmc5883l初始化 */
+  asp_hmc5883l_init();
+
+  HAL_TIM_Base_Start_IT(&htim3);
+  
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -144,6 +153,15 @@ void SystemClock_Config(void)
 void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 {
   HAL_GPIO_TogglePin(LED_GPIO_Port, LED_Pin);
+
+  /* 获取方向 */
+  float direction = asp_hmc5883l_get_direction();
+
+  static char str[10];
+
+  sprintf(str, "%5.1f", direction);
+
+  ssd1306_display_string(24, 16, str);
 }
 /* USER CODE END 4 */
 
