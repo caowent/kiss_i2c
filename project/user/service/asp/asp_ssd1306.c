@@ -65,14 +65,11 @@ void asp_ssd1306_init(void)
     /* i2c初始化 */
     msp_i2c_init();
 
-    /* 器件延时 */
-    HAL_Delay(100);
-
     /* 校验 ssd1306 通讯 */
     if (msp_i2c_check(DEV))
     {
+        while(1);
         print_log("can't find ssd1306\r\n");
-        return;
     }
 
     /* 初始化命令序列 */

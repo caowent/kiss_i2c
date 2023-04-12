@@ -339,7 +339,7 @@
               <MiscControls></MiscControls>
               <Define>USE_HAL_DRIVER,STM32F103x6</Define>
               <Undefine></Undefine>
-              <IncludePath>../Core/Inc;../Drivers/STM32F1xx_HAL_Driver/Inc;../Drivers/STM32F1xx_HAL_Driver/Inc/Legacy;../Drivers/CMSIS/Device/ST/STM32F1xx/Include;../Drivers/CMSIS/Include;..\user\service;..\user\service\asp;..\user\service\msp</IncludePath>
+              <IncludePath>../Core/Inc;../Drivers/STM32F1xx_HAL_Driver/Inc;../Drivers/STM32F1xx_HAL_Driver/Inc/Legacy;../Drivers/CMSIS/Device/ST/STM32F1xx/Include;../Drivers/CMSIS/Include;../user/service;../user/service/asp;../user/service/msp</IncludePath>
             </VariousControls>
           </Cads>
           <Aads>
@@ -517,6 +517,11 @@
               <FileName>font.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\user\service\asp\font.c</FilePath>
+            </File>
+            <File>
+              <FileName>asp_hmc5883l.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\user\service\asp\asp_hmc5883l.c</FilePath>
             </File>
           </Files>
         </Group>

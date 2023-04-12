@@ -2,6 +2,7 @@
     "files.associations": {
         "tim.h": "c",
         "common.h": "c",
-        "asp_ssd1306.h": "c"
+        "asp_ssd1306.h": "c",
+        "asp_hmc5883l.h": "c"
     }
 }

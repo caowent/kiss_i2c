@@ -22,15 +22,11 @@
 
 #define I2C_SDA_READ()  HAL_GPIO_ReadPin(I2C_SDA_GPIO_Port, I2C_SDA_Pin)
 
-/* 主频32MHz,半周期>1us,速率<400kHz */
+
 static void i2c_delay(void)
 {
-    // print_log("1.delay");
-    
-    // __NOP();
-    // __NOP();
-    
-    // print_log("2.delay");
+    /* 主频过高需加 __NOP()演示，数量依需求而定 */
+	/* 高速I2C 一般支持400kHz，多数情况不需要加延时 */
 }
 
 /* 主节点发起的I2C启动信号 */
