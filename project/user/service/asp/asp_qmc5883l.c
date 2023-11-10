@@ -11,7 +11,7 @@
 #include "math.h"
 
 /* hmc5883l 设备地址 */
-#define DEV (0x3C)
+#define DEV (0x1A)
 
 /* hmc5883l初始化 */
 void asp_hmc5883l_init(void)
@@ -27,25 +27,10 @@ void asp_hmc5883l_init(void)
             ;
     }
 
-    /* 校验ID */
-    uint8_t buff[3] = {0};
-
-    msp_i2c_read_bytes(DEV, 10, ADDR_IS_8b, buff, 3);
-
-    const uint8_t id[4] = "H43";
-
-    if (memcmp(id, buff, 3))
-    {
-        /* 识别寄存器比对失败 */
-        print_log("hmc5883l id register check failed\r\n");
-        while (1)
-            ;
-    }
-
     /* 配置寄存器 */
-    uint8_t mode[3] = {0xF0, 0x20, 0x01};
+    uint8_t mode = 0x0D;
 
-    msp_i2c_write_bytes(DEV, 00, ADDR_IS_8b, mode, 3);
+    msp_i2c_write_bytes(DEV, 9, ADDR_IS_8b, &mode, 1);
 }
 
 int16_t gx;
@@ -57,12 +42,12 @@ float asp_hmc5883l_get_direction(void)
     static uint8_t buff[6];
 
     /* 读取轴向数据 */
-    msp_i2c_read_bytes(DEV, 03, ADDR_IS_8b, buff, 6);
+    msp_i2c_read_bytes(DEV, 00, ADDR_IS_8b, buff, 6);
 
     static int16_t x, y;
 
-    x = buff[0] << 8 | buff[1];
-    y = buff[4] << 8 | buff[5];
+    x = buff[1] << 8 | buff[0];
+    y = buff[3] << 8 | buff[2];
 
     gx = x;
     gy = y;

@@ -150,6 +150,9 @@ void SystemClock_Config(void)
 }
 
 /* USER CODE BEGIN 4 */
+extern int16_t gx;
+extern int16_t gy;
+
 void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 {
   HAL_GPIO_TogglePin(LED_GPIO_Port, LED_Pin);
@@ -159,9 +162,14 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 
   static char str[10];
 
-  sprintf(str, "%5.1f", direction);
+  sprintf(str, "x:%5d", gx);
 
-  ssd1306_display_string(24, 16, str);
+  ssd1306_display_string(8, 0, str);
+
+  sprintf(str, "y:%5d", gy);
+
+  ssd1306_display_string(8, 32, str);
+
 }
 /* USER CODE END 4 */
 
