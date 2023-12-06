@@ -1,20 +1,20 @@
 /* USER CODE BEGIN Header */
 /**
-  ******************************************************************************
-  * @file           : main.c
-  * @brief          : Main program body
-  ******************************************************************************
-  * @attention
-  *
-  * Copyright (c) 2023 STMicroelectronics.
-  * All rights reserved.
-  *
-  * This software is licensed under terms that can be found in the LICENSE file
-  * in the root directory of this software component.
-  * If no LICENSE file comes with this software, it is provided AS-IS.
-  *
-  ******************************************************************************
-  */
+ ******************************************************************************
+ * @file           : main.c
+ * @brief          : Main program body
+ ******************************************************************************
+ * @attention
+ *
+ * Copyright (c) 2023 STMicroelectronics.
+ * All rights reserved.
+ *
+ * This software is licensed under terms that can be found in the LICENSE file
+ * in the root directory of this software component.
+ * If no LICENSE file comes with this software, it is provided AS-IS.
+ *
+ ******************************************************************************
+ */
 /* USER CODE END Header */
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
@@ -59,9 +59,9 @@ void SystemClock_Config(void);
 /* USER CODE END 0 */
 
 /**
-  * @brief  The application entry point.
-  * @retval int
-  */
+ * @brief  The application entry point.
+ * @retval int
+ */
 int main(void)
 {
   /* USER CODE BEGIN 1 */
@@ -99,7 +99,7 @@ int main(void)
   asp_hmc5883l_init();
 
   HAL_TIM_Base_Start_IT(&htim3);
-  
+
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -115,17 +115,17 @@ int main(void)
 }
 
 /**
-  * @brief System Clock Configuration
-  * @retval None
-  */
+ * @brief System Clock Configuration
+ * @retval None
+ */
 void SystemClock_Config(void)
 {
   RCC_OscInitTypeDef RCC_OscInitStruct = {0};
   RCC_ClkInitTypeDef RCC_ClkInitStruct = {0};
 
   /** Initializes the RCC Oscillators according to the specified parameters
-  * in the RCC_OscInitTypeDef structure.
-  */
+   * in the RCC_OscInitTypeDef structure.
+   */
   RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_HSE;
   RCC_OscInitStruct.HSEState = RCC_HSE_ON;
   RCC_OscInitStruct.PLL.PLLState = RCC_PLL_NONE;
@@ -135,9 +135,8 @@ void SystemClock_Config(void)
   }
 
   /** Initializes the CPU, AHB and APB buses clocks
-  */
-  RCC_ClkInitStruct.ClockType = RCC_CLOCKTYPE_HCLK|RCC_CLOCKTYPE_SYSCLK
-                              |RCC_CLOCKTYPE_PCLK1|RCC_CLOCKTYPE_PCLK2;
+   */
+  RCC_ClkInitStruct.ClockType = RCC_CLOCKTYPE_HCLK | RCC_CLOCKTYPE_SYSCLK | RCC_CLOCKTYPE_PCLK1 | RCC_CLOCKTYPE_PCLK2;
   RCC_ClkInitStruct.SYSCLKSource = RCC_SYSCLKSOURCE_HSE;
   RCC_ClkInitStruct.AHBCLKDivider = RCC_SYSCLK_DIV1;
   RCC_ClkInitStruct.APB1CLKDivider = RCC_HCLK_DIV1;
@@ -153,30 +152,65 @@ void SystemClock_Config(void)
 extern int16_t gx;
 extern int16_t gy;
 
+char str[10];
+
+char str_direc[8][5] = {" 北 ", "东北", " 东 ", "东南", " 南 ", "西南", " 西 ", "西北"};
+
 void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 {
   HAL_GPIO_TogglePin(LED_GPIO_Port, LED_Pin);
 
   /* 获取方向 */
-  float direction = asp_hmc5883l_get_direction();
+  float d = asp_hmc5883l_get_direction();
 
-  static char str[10];
+  float a = 22.5;
+  float b = 22.5 + 45;
 
-  sprintf(str, "x:%5d", gx);
+  if ((d <= 22.5) || (d > (360 - 22.5)))
+  {
+    ssd1306_display_string(32, 0, str_direc[0]);
+  }
+  else
+  {
+    for (int i = 0; i < 7; i++)
+    {
+      if ((d > a) && (d <= b))
+      {
+        ssd1306_display_string(32, 0, str_direc[i + 1]);
 
-  ssd1306_display_string(8, 0, str);
+        break;
+      }
 
-  sprintf(str, "y:%5d", gy);
+      a += 45;
+      b += 45;
+    }
+  }
 
-  ssd1306_display_string(8, 32, str);
+  sprintf(str, "%3.0f", d);
 
+  ssd1306_display_string(40, 32, str);
 }
+
+void asp_count_down_cb(int count)
+{
+  static int i;
+
+  if (count >= i)
+  {
+    sprintf(str, "%2d", 10 - i);
+
+    ssd1306_display_string(40, 16, str);
+
+    i++;
+  }
+}
+
 /* USER CODE END 4 */
 
 /**
-  * @brief  This function is executed in case of error occurrence.
-  * @retval None
-  */
+ * @brief  This function is executed in case of error occurrence.
+ * @retval None
+ */
 void Error_Handler(void)
 {
   /* USER CODE BEGIN Error_Handler_Debug */
@@ -188,14 +222,14 @@ void Error_Handler(void)
   /* USER CODE END Error_Handler_Debug */
 }
 
-#ifdef  USE_FULL_ASSERT
+#ifdef USE_FULL_ASSERT
 /**
-  * @brief  Reports the name of the source file and the source line number
-  *         where the assert_param error has occurred.
-  * @param  file: pointer to the source file name
-  * @param  line: assert_param error line source number
-  * @retval None
-  */
+ * @brief  Reports the name of the source file and the source line number
+ *         where the assert_param error has occurred.
+ * @param  file: pointer to the source file name
+ * @param  line: assert_param error line source number
+ * @retval None
+ */
 void assert_failed(uint8_t *file, uint32_t line)
 {
   /* USER CODE BEGIN 6 */

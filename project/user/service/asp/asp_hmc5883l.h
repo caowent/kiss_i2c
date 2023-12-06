@@ -18,6 +18,12 @@ void asp_hmc5883l_init(void);
 /* 获取方位角度 */
 float asp_hmc5883l_get_direction(void);
 
+/* 信号校准 */
+void asp_hmc5883l_calib(void);
+
+/* 倒计时回调 */
+void asp_count_down_cb(int count);
+
 #endif /* __asp_hmc5883l_H */
 
 /*********************************** END OF FILE ***********************************/
