@@ -32,11 +32,9 @@ static void i2c_delay(void)
 /* 主节点发起的I2C启动信号 */
 static void i2c_start(void)
 {
-    /* 需在SCL拉高前，输出SDA下降沿前置状态为高 */
     I2C_SDA_H();
     i2c_delay();
 
-    /* 当SCL为高时，SDA产生下降沿表示总线启动 */
     I2C_SCL_H();
     i2c_delay();
     
@@ -47,11 +45,9 @@ static void i2c_start(void)
 /* 主节点发起的I2C停止信号 */
 static void i2c_stop(void)
 {
-    /* 需在SCL拉高前，输出SDA上升沿前置状态为低 */
     I2C_SDA_L();
     i2c_delay();
 
-    /* 当SCL为高时，SDA产生上升沿表示总线停止 */
     I2C_SCL_H();
     i2c_delay();
     
@@ -64,10 +60,8 @@ static void send_byte(uint8_t byte)
 {
     for(uint32_t i=0; i<8; i++)
     {
-        /* 拉低SCK */
         I2C_SCL_L();
         
-        /* 准备数据 */
         if(byte&0x80)
         {
             I2C_SDA_H();
@@ -78,7 +72,6 @@ static void send_byte(uint8_t byte)
         }
         i2c_delay();
 
-        /* 拉高SCK，锁存数据，等待从节点读取 */
         I2C_SCL_H();
         i2c_delay();
         
@@ -91,7 +84,6 @@ static uint8_t read_byte(void)
 {
     uint8_t byte = 0;
     
-    /* 释放SDA，SDA控制权交由从节点 */
     I2C_SCL_L();
     I2C_SDA_H();
     i2c_delay();
@@ -100,15 +92,12 @@ static uint8_t read_byte(void)
     {
         byte <<= 1;
         
-        /* 拉低SCK，等待从节点写入数据 */
         I2C_SCL_L();
         i2c_delay();
         
-        /* 拉高SCK，锁存数据 */
         I2C_SCL_H();
         i2c_delay();
         
-        /* 读取数据 */
         if(I2C_SDA_READ())
         {
             byte |= 0x01;
@@ -123,19 +112,15 @@ static uint8_t wait_ack(void)
 {
     uint8_t ack = 0;
     
-    /* 释放SDA，等待ack */
     I2C_SCL_L();
     I2C_SDA_H();
     i2c_delay();
     
-    /* 拉高SCK，锁存数据 */
     I2C_SCL_H();
     i2c_delay();
     
-    /* 获取ack */
     ack = I2C_SDA_READ();
     
-    /* 通知设备释放SDA */
     I2C_SCL_L();
     i2c_delay();
     
@@ -145,18 +130,14 @@ static uint8_t wait_ack(void)
 /* 向从节点发送ack */
 static void send_ack(void)
 {
-    /* 拉低SCK */
     I2C_SCL_L();
     
-    /* 生成ack */
     I2C_SDA_L();
     i2c_delay();
 
-    /* 拉高SCK，锁存数据，等待从节点读取 */
     I2C_SCL_H();
     i2c_delay();
     
-    /* 释放SDA */
     I2C_SCL_L();
     I2C_SDA_H();
     i2c_delay();
@@ -165,18 +146,14 @@ static void send_ack(void)
 /* 向从节点发送nack */
 static void send_nack(void)
 {
-    /* 拉低SCK */
     I2C_SCL_L();
     
-    /* 生成nack */
     I2C_SDA_H();
     i2c_delay();
 
-    /* 拉高SCK，锁存数据，等待从节点读取 */
     I2C_SCL_H();
     i2c_delay();
     
-    /* 释放SDA */
     I2C_SCL_L();
     I2C_SDA_H();
     i2c_delay();
