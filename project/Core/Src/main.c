@@ -149,8 +149,6 @@ void SystemClock_Config(void)
 }
 
 /* USER CODE BEGIN 4 */
-extern int16_t gx;
-extern int16_t gy;
 
 char str[10];
 
@@ -189,20 +187,6 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
   sprintf(str, "%3.0f", d);
 
   ssd1306_display_string(40, 32, str);
-}
-
-void asp_count_down_cb(int count)
-{
-  static int i;
-
-  if (count >= i)
-  {
-    sprintf(str, "%2d", 10 - i);
-
-    ssd1306_display_string(40, 16, str);
-
-    i++;
-  }
 }
 
 /* USER CODE END 4 */

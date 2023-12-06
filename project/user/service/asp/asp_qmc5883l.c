@@ -1,6 +1,6 @@
 /**
  ******************************************************************************
- * @file    asp_hmc5883l
+ * @file    asp_hmc5883l(qmc和hmc 选其一编译)
  * @author  曹文涛
  * @date    2023-04-11
  * @brief   提供hmc5883l 电子罗盘驱动服务
@@ -33,27 +33,25 @@ void asp_hmc5883l_init(void)
     msp_i2c_write_bytes(DEV, 9, ADDR_IS_8b, &mode, 1);
 }
 
-int16_t gx;
-int16_t gy;
-
 /* 获取方位角度 */
 float asp_hmc5883l_get_direction(void)
 {
-    static uint8_t buff[6];
+    uint8_t buff[6];
 
     /* 读取轴向数据 */
     msp_i2c_read_bytes(DEV, 00, ADDR_IS_8b, buff, 6);
 
-    static int16_t x, y;
+    int16_t x, y;
 
     x = buff[1] << 8 | buff[0];
     y = buff[3] << 8 | buff[2];
 
-    gx = x;
-    gy = y;
+    float dirction;
 
-    static float dirction;
-    dirction = atan2(y, x) / 3.14 * 180 + 90;
+    dirction = atan2(y, x) / 3.14 * 180 + 180;
+
+    if (dirction < 0)
+        dirction += 360;
 
     /* 单次模式 */
     uint8_t mode = 0x01;

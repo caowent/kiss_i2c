@@ -10,9 +10,6 @@
 #include "msp_i2c.h"
 #include "math.h"
 
-#define min(x, y) x < y ? x : y
-#define max(x, y) x > y ? x : y
-
 /* hmc5883l 设备地址 */
 #define DEV (0x3C)
 
@@ -49,88 +46,32 @@ void asp_hmc5883l_init(void)
     uint8_t mode[3] = {0xF0, 0x20, 0x01};
 
     msp_i2c_write_bytes(DEV, 00, ADDR_IS_8b, mode, 3);
-
 }
-
-int16_t Xoffset, Yoffset;
-
-/* 信号校准 */
-void asp_hmc5883l_calib(void)
-{
-    int tick_start = HAL_GetTick();
-
-    uint8_t buff[6];
-
-    int16_t x, y;
-
-    static int16_t Xmin, Xmax;
-    static int16_t Ymin, Ymax;
-
-    msp_i2c_read_bytes(DEV, 03, ADDR_IS_8b, buff, 6);
-
-    Xmin = Xmax = buff[0] << 8 | buff[1];
-    Ymin = Ymax = buff[4] << 8 | buff[5];
-
-    uint8_t mode = 0x01;
-
-    int count;
-
-    while (1)
-    {
-        msp_i2c_write_bytes(DEV, 02, ADDR_IS_8b, &mode, 1);
-
-        msp_i2c_read_bytes(DEV, 03, ADDR_IS_8b, buff, 6);
-
-        x = buff[0] << 8 | buff[1];
-        y = buff[4] << 8 | buff[5];
-
-        Xmin = min(x, Xmin);
-        Xmax = max(x, Xmax);
-
-        Ymin = min(y, Ymin);
-        Ymax = max(y, Ymax);
-
-        count = HAL_GetTick() - tick_start;
-
-        asp_count_down_cb(count/1000);
-
-        if (count > 10 * 1000)
-            break;
-    }
-
-    Xoffset = (Xmax - Xmin) / 2 - Xmax;
-    Yoffset = (Ymax - Ymin) / 2 - Ymax;
-}
-
-int16_t gx;
-int16_t gy;
 
 /* 获取方位角度 */
 float asp_hmc5883l_get_direction(void)
 {
-    static uint8_t buff[6];
+    uint8_t buff[6];
 
     /* 读取轴向数据 */
     msp_i2c_read_bytes(DEV, 03, ADDR_IS_8b, buff, 6);
 
-    static int16_t x, y;
+    int16_t x, y;
 
     x = buff[0] << 8 | buff[1];
     y = buff[4] << 8 | buff[5];
 
-    gx = x + Xoffset;
-    gy = y + Yoffset;
+    float dirction;
 
-    static float dirction;
     dirction = atan2(y, x) / 3.14 * 180;
 
-    if(dirction < 0)
-    dirction += 360;
+    if (dirction < 0)
+        dirction += 360;
 
     dirction -= 110;
 
-    if(dirction < 0)
-    dirction += 360;
+    if (dirction < 0)
+        dirction += 360;
 
     /* 单次模式 */
     uint8_t mode = 0x01;
@@ -138,12 +79,6 @@ float asp_hmc5883l_get_direction(void)
     msp_i2c_write_bytes(DEV, 02, ADDR_IS_8b, &mode, 1);
 
     return dirction;
-}
-
-/* 倒计时回调 */
-__weak void asp_count_down_cb(int count)
-{
-
 }
 
 /*********************************** END OF FILE ***********************************/
