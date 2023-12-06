@@ -158,13 +158,14 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 {
   HAL_GPIO_TogglePin(LED_GPIO_Port, LED_Pin);
 
-  /* 获取方向 */
-  float d = asp_hmc5883l_get_direction();
+  /* 获取方向角度 */
+  float direction = asp_hmc5883l_get_direction();
 
   float a = 22.5;
   float b = 22.5 + 45;
 
-  if ((d <= 22.5) || (d > (360 - 22.5)))
+  /* 换算成8个方位 */
+  if ((direction <= 22.5) || (direction > (360 - 22.5)))
   {
     ssd1306_display_string(32, 0, str_direc[0]);
   }
@@ -172,7 +173,7 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
   {
     for (int i = 0; i < 7; i++)
     {
-      if ((d > a) && (d <= b))
+      if ((direction > a) && (direction <= b))
       {
         ssd1306_display_string(32, 0, str_direc[i + 1]);
 
@@ -184,7 +185,7 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
     }
   }
 
-  sprintf(str, "%3.0f", d);
+  sprintf(str, "%3.0f", direction);
 
   ssd1306_display_string(40, 32, str);
 }

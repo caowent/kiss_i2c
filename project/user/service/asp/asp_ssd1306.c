@@ -23,7 +23,7 @@ static void ssd1306_write_cmd(uint8_t cmd)
     msp_i2c_write_bytes(DEV, 0x00, ADDR_IS_8b, &cmd, 1);
 }
 
-/* 写了显存 */
+/* 写入显存 */
 static void ssd1306_write_data(uint8_t *data, int num)
 {
     msp_i2c_write_bytes(DEV, 0x40, ADDR_IS_8b, data, num);
@@ -85,9 +85,12 @@ void ssd1306_refresh_gram(void)
 {
     for (int i = 0; i < 8; i++)
     {
-        ssd1306_write_cmd(0xB0 + i); // 设置行起始地址
-        ssd1306_write_cmd(0x00);     // 设置低列起始地址
-        ssd1306_write_cmd(0x10);     // 设置高列起始地址
+        /* 设置行起始地址 */
+        ssd1306_write_cmd(0xB0 + i);
+        /* 设置低列起始地址 */
+        ssd1306_write_cmd(0x00);
+        /* 设置高列起始地址 */
+        ssd1306_write_cmd(0x10);
 
         ssd1306_write_data(OLED_GRAM[i], 128);
     }

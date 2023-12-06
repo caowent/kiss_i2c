@@ -16,9 +16,8 @@ extern const char font3216[][64];
 
 typedef struct
 {
-    /* index */
     char index[2];
-    /* font */
+    
     char font[128];
 }chinese3232_typ;
 
