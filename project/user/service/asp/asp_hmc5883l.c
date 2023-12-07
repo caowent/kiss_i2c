@@ -11,13 +11,8 @@
 #include "msp_i2c.h"
 #include "math.h"
 
-#define min(x, y) x < y ? x : y
-#define max(x, y) x > y ? x : y
-
 /* hmc5883l 设备地址 */
 #define DEV (0x3C)
-
-void asp_hmc5883l_calib(void);
 
 /* hmc5883l初始化 */
 void asp_hmc5883l_init(void)
@@ -53,56 +48,6 @@ void asp_hmc5883l_init(void)
 
     msp_i2c_write_bytes(DEV, 00, ADDR_IS_8b, mode, 3);
 
-    asp_hmc5883l_calib();
-
-}
-
-int16_t Xoffset, Yoffset;
-
-/* 信号校准 */
-void asp_hmc5883l_calib(void)
-{
-    int tick_start = HAL_GetTick();
-
-    uint8_t buff[6];
-
-    int16_t x, y;
-
-    static int16_t Xmin, Xmax;
-    static int16_t Ymin, Ymax;
-
-    msp_i2c_read_bytes(DEV, 03, ADDR_IS_8b, buff, 6);
-
-    Xmin = Xmax = buff[0] << 8 | buff[1];
-    Ymin = Ymax = buff[4] << 8 | buff[5];
-
-    uint8_t mode = 0x01;
-
-    int count;
-
-    while (1)
-    {
-        msp_i2c_write_bytes(DEV, 02, ADDR_IS_8b, &mode, 1);
-
-        msp_i2c_read_bytes(DEV, 03, ADDR_IS_8b, buff, 6);
-
-        x = buff[0] << 8 | buff[1];
-        y = buff[4] << 8 | buff[5];
-
-        Xmin = min(x, Xmin);
-        Xmax = max(x, Xmax);
-
-        Ymin = min(y, Ymin);
-        Ymax = max(y, Ymax);
-
-        count = HAL_GetTick() - tick_start;
-
-        if (count > 10 * 1000)
-            break;
-    }
-
-    Xoffset = (Xmax - Xmin) / 2 - Xmax;
-    Yoffset = (Ymax - Ymin) / 2 - Ymax;
 }
 
 /* 获取方位角度 */
@@ -118,8 +63,8 @@ float asp_hmc5883l_get_direction(void)
     x = buff[0] << 8 | buff[1];
     y = buff[4] << 8 | buff[5];
 
-    x += Xoffset;
-    y += Yoffset;
+    x += -51;
+    y += -46;
 
     float dirction = atan2(y, x) / 3.14 * 180;
 

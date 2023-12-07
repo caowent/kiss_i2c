@@ -1901,9 +1901,9 @@
       </Doc>
       <Doc>
         <Name>..\user\service\asp\asp_hmc5883l.c</Name>
-        <ColumnNumber>0</ColumnNumber>
+        <ColumnNumber>15</ColumnNumber>
         <TopLine>30</TopLine>
-        <CurrentLine>63</CurrentLine>
+        <CurrentLine>46</CurrentLine>
         <Folding>1</Folding>
         <ContractedFolders></ContractedFolders>
         <PaneID>0</PaneID>
