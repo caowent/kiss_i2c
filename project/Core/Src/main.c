@@ -190,6 +190,20 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
   ssd1306_display_string(40, 32, str);
 }
 
+void asp_count_down_cb(int count)
+{
+  static int i;
+
+  if (count >= i)
+  {
+    sprintf(str, "%2d", 10 - i);
+
+    ssd1306_display_string(40, 16, str);
+
+    i++;
+  }
+}
+
 /* USER CODE END 4 */
 
 /**
