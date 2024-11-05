@@ -8,28 +8,63 @@
 
 #include "msp_i2c.h"
 
+#define I2C_SCL_Pin GPIO_Pin_11
+#define I2C_SCL_GPIO_Port GPIOA
+
+#define I2C_SDA_Pin GPIO_Pin_12
+#define I2C_SDA_GPIO_Port GPIOA
+
 /* 写控制位 */
-#define I2C_W (0)
+#define I2C_W 0
 /* 读控制位 */
-#define I2C_R (1)
+#define I2C_R 1
 
 /**** 引脚控制宏 ****/
-#define I2C_SCL_H() HAL_GPIO_WritePin(I2C_SCL_GPIO_Port, I2C_SCL_Pin, GPIO_PIN_SET)
-#define I2C_SCL_L() HAL_GPIO_WritePin(I2C_SCL_GPIO_Port, I2C_SCL_Pin, GPIO_PIN_RESET)
+#define I2C_SCL_H() GPIO_SetBits(I2C_SCL_GPIO_Port, I2C_SCL_Pin)
+#define I2C_SCL_L() GPIO_ResetBits(I2C_SCL_GPIO_Port, I2C_SCL_Pin)
 
-#define I2C_SDA_H() HAL_GPIO_WritePin(I2C_SDA_GPIO_Port, I2C_SDA_Pin, GPIO_PIN_SET)
-#define I2C_SDA_L() HAL_GPIO_WritePin(I2C_SDA_GPIO_Port, I2C_SDA_Pin, GPIO_PIN_RESET)
+#define I2C_SDA_H() GPIO_SetBits(I2C_SDA_GPIO_Port, I2C_SDA_Pin)
+#define I2C_SDA_L() GPIO_ResetBits(I2C_SDA_GPIO_Port, I2C_SDA_Pin)
 
-#define I2C_SDA_READ() HAL_GPIO_ReadPin(I2C_SDA_GPIO_Port, I2C_SDA_Pin)
+#define I2C_SDA_READ() GPIO_ReadInputDataBit(I2C_SDA_GPIO_Port, I2C_SDA_Pin)
 
-static void i2c_delay(void)
+void i2c_delay(void);
+void i2c_start(void);
+void i2c_stop(void);
+void send_byte(uint8_t byte);
+uint8_t read_byte(void);
+uint8_t wait_ack(void);
+void send_ack(void);
+void send_nack(void);
+
+/* i2c初始化 */
+void msp_i2c_init(void)
 {
-    /* 主频过高需加 __NOP()演示，数量依需求而定 */
-    /* 高速I2C 一般支持400kHz，多数情况不需要加延时 */
+    GPIO_InitTypeDef GPIO_InitStructure = {0};
+
+    RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOD, ENABLE);
+
+    GPIO_StructInit(&GPIO_InitStructure);
+    GPIO_InitStructure.GPIO_Pin = GPIO_Pin_11 | GPIO_Pin_12;
+    GPIO_InitStructure.GPIO_Mode = GPIO_Mode_OUT;
+    GPIO_InitStructure.GPIO_OType = GPIO_OType_OD;
+    GPIO_InitStructure.GPIO_Speed = GPIO_Speed_2MHz;
+    GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_UP;
+    GPIO_Init(GPIOA, &GPIO_InitStructure);
+
+    /* 释放总线 */
+    i2c_stop();
+}
+
+void i2c_delay(void)
+{
+    /* 这里循环数填主频（单位MHz）即可 */
+    for (int i = 0; i < 120; i++)
+        __NOP();
 }
 
 /* 主节点发起的I2C启动信号 */
-static void i2c_start(void)
+void i2c_start(void)
 {
     I2C_SDA_H();
     i2c_delay();
@@ -42,7 +77,7 @@ static void i2c_start(void)
 }
 
 /* 主节点发起的I2C停止信号 */
-static void i2c_stop(void)
+void i2c_stop(void)
 {
     I2C_SDA_L();
     i2c_delay();
@@ -55,7 +90,7 @@ static void i2c_stop(void)
 }
 
 /* 发送一个字节 */
-static void send_byte(uint8_t byte)
+void send_byte(uint8_t byte)
 {
     for (uint32_t i = 0; i < 8; i++)
     {
@@ -79,7 +114,7 @@ static void send_byte(uint8_t byte)
 }
 
 /* 读取一个字节 */
-static uint8_t read_byte(void)
+uint8_t read_byte(void)
 {
     uint8_t byte = 0;
 
@@ -107,7 +142,7 @@ static uint8_t read_byte(void)
 }
 
 /* 等待从节点ack */
-static uint8_t wait_ack(void)
+uint8_t wait_ack(void)
 {
     uint8_t ack = 0;
 
@@ -127,7 +162,7 @@ static uint8_t wait_ack(void)
 }
 
 /* 向从节点发送ack */
-static void send_ack(void)
+void send_ack(void)
 {
     I2C_SCL_L();
 
@@ -143,7 +178,7 @@ static void send_ack(void)
 }
 
 /* 向从节点发送nack */
-static void send_nack(void)
+void send_nack(void)
 {
     I2C_SCL_L();
 
@@ -156,15 +191,6 @@ static void send_nack(void)
     I2C_SCL_L();
     I2C_SDA_H();
     i2c_delay();
-}
-
-/* i2c初始化 */
-void msp_i2c_init(void)
-{
-    /* 此处无需初始化GPIO,cube已自动生成 */
-
-    /* 释放总线 */
-    i2c_stop();
 }
 
 /* 校验从节点

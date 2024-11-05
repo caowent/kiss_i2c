@@ -12,8 +12,8 @@
 
 #include "common.h"
 
-#define ADDR_IS_8b (1)
-#define ADDR_IS_16b (0)
+#define ADDR_IS_8b 1
+#define ADDR_IS_16b 0
 
 /* i2c≥ı ºªØ */
 void msp_i2c_init(void);
